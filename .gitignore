@@ -1,6 +1,9 @@
 # Rust build artifacts
 /target
 
+# Packaging output (installer + portable zip)
+/dist
+
 # Planning doc (local only)
 time-jutsu-plan.md
 plan.md
