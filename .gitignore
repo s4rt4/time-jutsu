@@ -1,0 +1,13 @@
+# Rust build artifacts
+/target
+
+# Planning doc (local only)
+time-jutsu-plan.md
+plan.md
+
+# OS / editor
+Thumbs.db
+.DS_Store
+*.swp
+.vscode/
+.idea/
