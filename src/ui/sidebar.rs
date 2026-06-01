@@ -41,6 +41,8 @@ fn item(ui: &mut Ui, tab: Tab, active: bool) -> bool {
     let painter = ui.painter();
 
     if active {
+        // background tab aktif = warna konten → menyatu dengan halaman
+        painter.rect_filled(rect, 0.0, theme::bg());
         // accent strip kiri
         let strip = egui::Rect::from_min_size(rect.left_top(), Vec2::new(3.0, ITEM_H));
         painter.rect_filled(strip, 0.0, theme::ACCENT);
