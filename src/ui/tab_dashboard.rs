@@ -24,6 +24,9 @@ pub fn render(
     ui.label(RichText::new("Dashboard").color(theme::text()).strong().size(15.0));
     ui.add_space(12.0);
 
+    egui::ScrollArea::vertical()
+        .auto_shrink([false, false])
+        .show(ui, |ui| {
     // ── Hari ini: dua stat card ────────────────────────────────────
     let (sessions, focus_min) = today;
     let focus = fmt_minutes(focus_min);
@@ -66,6 +69,9 @@ pub fn render(
         .next_deadline()
         .map(|d| format!("{}  {}", d.label, d.remaining_text()));
     active_card(ui, icon::FLAG, "Deadline", dl_val);
+
+            ui.add_space(8.0); // ruang bawah
+        });
 }
 
 fn fmt_minutes(m: u32) -> String {

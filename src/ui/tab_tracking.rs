@@ -15,24 +15,25 @@ pub fn render(ui: &mut Ui, tracker: &mut Tracker) -> bool {
     ui.add_space(10.0);
 
     // ── Tambah proyek ──────────────────────────────────────────────
-    ui.horizontal(|ui| {
-        let resp = ui.add(
-            TextEdit::singleline(&mut tracker.input_name)
-                .hint_text("Nama proyek")
-                .desired_width(f32::INFINITY),
-        );
-        let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-            let add = egui::Button::new(RichText::new(icon::PLUS).color(theme::on_accent()).strong())
-                .fill(theme::ACCENT)
-                .corner_radius(6.0)
-                .min_size(vec2(30.0, 24.0));
-            if (ui.add(add).clicked() || enter) && !tracker.input_name.trim().is_empty() {
-                tracker.add();
-                changed = true;
-            }
-        });
-    });
+    let resp = ui.add(
+        TextEdit::singleline(&mut tracker.input_name)
+            .hint_text("Nama proyek")
+            .desired_width(f32::INFINITY),
+    );
+    let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
+    ui.add_space(6.0);
+    let add = egui::Button::new(
+        RichText::new(format!("{}  Tambah Proyek", icon::PLUS))
+            .color(theme::on_accent())
+            .strong(),
+    )
+    .fill(theme::ACCENT)
+    .corner_radius(6.0)
+    .min_size(vec2(ui.available_width(), 32.0));
+    if (ui.add(add).clicked() || enter) && !tracker.input_name.trim().is_empty() {
+        tracker.add();
+        changed = true;
+    }
     ui.add_space(12.0);
 
     if tracker.projects.is_empty() {

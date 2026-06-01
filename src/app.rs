@@ -325,6 +325,7 @@ impl TimeJutsuApp {
     fn titlebar(&mut self, ctx: &Context) {
         use egui_phosphor::regular as icon;
         let tray_on_minimize = self.tray.is_some() && self.config.tray_on_minimize;
+        let tab_title = self.current_tab.title();
         let mut open_settings = false;
         let mut do_minimize = false;
         let mut do_close = false;
@@ -347,6 +348,11 @@ impl TimeJutsuApp {
                             .color(theme::text())
                             .strong()
                             .size(13.0),
+                    );
+                    ui.label(
+                        RichText::new(format!("|  {tab_title}"))
+                            .color(theme::muted())
+                            .size(12.0),
                     );
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         ui.add_space(4.0);
