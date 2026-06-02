@@ -1,6 +1,6 @@
 [package]
 name = "time-jutsu"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Master your time. Strike with precision."
 
@@ -23,6 +23,8 @@ windows = { version = "0.58", features = [
     "Win32_System_Power",
     "Win32_System_Registry",
     "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_Security",
     "Win32_Foundation",
     "Win32_Graphics_Dwm",
     "Win32_UI_WindowsAndMessaging",

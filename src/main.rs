@@ -28,7 +28,37 @@ fn load_window_icon() -> egui::IconData {
     }
 }
 
+/// Single-instance: jika sudah ada instance jalan, tampilkan window-nya lalu
+/// minta instance baru keluar. Cegah app dobel saat shortcut diklik lagi.
+#[cfg(target_os = "windows")]
+fn should_exit_duplicate() -> bool {
+    use windows::core::w;
+    use windows::Win32::Foundation::{GetLastError, ERROR_ALREADY_EXISTS};
+    use windows::Win32::System::Threading::CreateMutexW;
+    unsafe {
+        let handle = CreateMutexW(None, true, w!("TimeJutsu-SingleInstance-Mutex"));
+        if GetLastError() == ERROR_ALREADY_EXISTS {
+            // instance lain sudah ada → munculkan window-nya, lalu keluar
+            utils::platform::show_window("Time-Jutsu");
+            return true;
+        }
+        // HANDLE bertahan sampai proses keluar (tak ada Drop yang menutupnya);
+        // mutex tetap dipegang → guard single-instance aktif.
+        let _ = handle;
+        false
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn should_exit_duplicate() -> bool {
+    false
+}
+
 fn main() -> eframe::Result<()> {
+    if should_exit_duplicate() {
+        return Ok(());
+    }
+
     let viewport = egui::ViewportBuilder::default()
         .with_inner_size([WINDOW_W, WINDOW_H])
         .with_min_inner_size([WINDOW_W, WINDOW_H])

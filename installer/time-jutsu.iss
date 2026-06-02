@@ -2,7 +2,7 @@
 ; Build: "ISCC.exe" installer\time-jutsu.iss  (output ke dist\)
 
 #define MyAppName "Time-Jutsu"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.1.1"
 #define MyAppPublisher "s4rt4"
 #define MyAppURL "https://github.com/s4rt4/time-jutsu"
 #define MyAppExeName "time-jutsu.exe"

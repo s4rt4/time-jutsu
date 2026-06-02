@@ -105,6 +105,15 @@ impl TimeJutsuApp {
         theme::apply(&cc.egui_ctx);
         egui_extras::install_image_loaders(&cc.egui_ctx);
 
+        // Thread heartbeat: bangunkan UI tiap 1 detik supaya alarm/scheduler/
+        // timer tetap berjalan & tray tetap responsif walau window di-hide ke
+        // tray (saat hidden, eframe tidak repaint sendiri).
+        let beat_ctx = cc.egui_ctx.clone();
+        std::thread::spawn(move || loop {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            beat_ctx.request_repaint();
+        });
+
         // Terapkan config ke state runtime.
         let mut pomodoro = Pomodoro::default();
         pomodoro.work_minutes = config.pomodoro.work_minutes.max(1);
@@ -127,7 +136,7 @@ impl TimeJutsuApp {
 
         Self {
             current_tab: Tab::Pomodoro,
-            tray: TrayState::new(),
+            tray: TrayState::new(&cc.egui_ctx),
             allow_exit: false,
             corners_rounded: false,
             was_minimized: false,
@@ -291,18 +300,32 @@ impl TimeJutsuApp {
     }
 
     fn handle_tray(&mut self, ctx: &Context) {
-        if let Some(tray) = &self.tray {
-            if let Some(cmd) = tray.poll() {
-                match cmd {
-                    TrayCommand::Show => {
-                        ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
-                        ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
-                    }
-                    TrayCommand::Quit => {
-                        self.allow_exit = true;
-                        self.save_config();
-                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-                    }
+        if self.tray.is_none() {
+            return;
+        }
+        for cmd in TrayState::drain() {
+            let show = |ctx: &Context| {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
+                ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
+            };
+            match cmd {
+                TrayCommand::Show => show(ctx),
+                TrayCommand::OpenPomodoro => {
+                    self.current_tab = Tab::Pomodoro;
+                    show(ctx);
+                }
+                TrayCommand::OpenTracking => {
+                    self.current_tab = Tab::Tracking;
+                    show(ctx);
+                }
+                TrayCommand::OpenDashboard => {
+                    self.current_tab = Tab::Dashboard;
+                    show(ctx);
+                }
+                TrayCommand::Quit => {
+                    self.allow_exit = true;
+                    self.save_config();
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
             }
         }

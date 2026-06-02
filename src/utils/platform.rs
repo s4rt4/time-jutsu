@@ -145,3 +145,25 @@ pub fn idle_seconds() -> u64 {
 pub fn idle_seconds() -> u64 {
     0
 }
+
+/// Tampilkan & fokuskan window app via Win32 langsung (by title). Dipakai tray
+/// & single-instance — bekerja walau eframe sedang tidak repaint (window hidden).
+#[cfg(target_os = "windows")]
+pub fn show_window(title: &str) {
+    use windows::core::PCWSTR;
+    use windows::Win32::UI::WindowsAndMessaging::{
+        FindWindowW, SetForegroundWindow, ShowWindow, SW_SHOW,
+    };
+    let wide: Vec<u16> = title.encode_utf16().chain(std::iter::once(0)).collect();
+    unsafe {
+        if let Ok(hwnd) = FindWindowW(PCWSTR::null(), PCWSTR(wide.as_ptr())) {
+            if !hwnd.is_invalid() {
+                let _ = ShowWindow(hwnd, SW_SHOW);
+                let _ = SetForegroundWindow(hwnd);
+            }
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+pub fn show_window(_title: &str) {}
