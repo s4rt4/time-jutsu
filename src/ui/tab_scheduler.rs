@@ -3,6 +3,7 @@ use egui_phosphor::regular as icon;
 
 use crate::core::fmt_hms;
 use crate::core::scheduler::Scheduler;
+use crate::i18n::t;
 use crate::ui::theme;
 use crate::utils::platform::SystemAction;
 
@@ -24,7 +25,7 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
 
     // ── Aksi ───────────────────────────────────────────────────────
     ui.add_enabled_ui(!armed, |ui| {
-        ui.label(RichText::new("AKSI").color(theme::muted()).size(10.0));
+        ui.label(RichText::new(t("AKSI", "ACTION")).color(theme::muted()).size(10.0));
         ui.add_space(4.0);
         ComboBox::from_id_salt("sched_action")
             .selected_text(sched.action.label())
@@ -38,11 +39,11 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
         ui.add_space(10.0);
 
         // ── Waktu ──────────────────────────────────────────────────
-        ui.label(RichText::new("WAKTU").color(theme::muted()).size(10.0));
+        ui.label(RichText::new(t("WAKTU", "TIME")).color(theme::muted()).size(10.0));
         ui.add_space(4.0);
         ui.horizontal(|ui| {
-            mode_button(ui, sched, false, "Setelah");
-            mode_button(ui, sched, true, "Pada jam");
+            mode_button(ui, sched, false, t("Setelah", "After"));
+            mode_button(ui, sched, true, t("Pada jam", "At time"));
         });
         ui.add_space(6.0);
         ui.horizontal(|ui| {
@@ -54,7 +55,7 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
                 ui.add(
                     egui::DragValue::new(&mut sched.after_minutes)
                         .range(1..=1440)
-                        .suffix(" menit"),
+                        .suffix(t(" menit", " min")),
                 );
             }
         });
@@ -75,7 +76,7 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
     // ── Status armed + countdown ───────────────────────────────────
     if let Some(rem) = sched.remaining() {
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("Tersisa").color(theme::muted()).size(11.0));
+            ui.label(RichText::new(t("Tersisa", "Remaining")).color(theme::muted()).size(11.0));
             ui.label(
                 RichText::new(fmt_hms(rem))
                     .color(theme::ACCENT)
@@ -90,7 +91,7 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
     ui.vertical_centered(|ui| {
         if !armed {
             let set = egui::Button::new(
-                RichText::new(format!("{}  Set Jadwal", icon::ALARM))
+                RichText::new(format!("{}  {}", icon::ALARM, t("Set Jadwal", "Set Schedule")))
                     .color(theme::on_accent())
                     .strong(),
             )

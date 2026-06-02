@@ -7,6 +7,7 @@ use crate::core::fmt_hms;
 use crate::core::pomodoro::Pomodoro;
 use crate::core::scheduler::Scheduler;
 use crate::core::tracking::Tracker;
+use crate::i18n::t;
 use crate::ui::theme;
 
 #[allow(clippy::too_many_arguments)]
@@ -31,19 +32,19 @@ pub fn render(
     let (sessions, focus_min) = today;
     let focus = fmt_minutes(focus_min);
     ui.columns(2, |cols| {
-        stat_card(&mut cols[0], icon::CHECK_CIRCLE, &sessions.to_string(), "Sesi fokus");
-        stat_card(&mut cols[1], icon::CLOCK, &focus, "Waktu fokus");
+        stat_card(&mut cols[0], icon::CHECK_CIRCLE, &sessions.to_string(), t("Sesi fokus", "Focus sessions"));
+        stat_card(&mut cols[1], icon::CLOCK, &focus, t("Waktu fokus", "Focus time"));
     });
 
     ui.add_space(12.0);
 
     // ── Minggu ini: grafik + streak ────────────────────────────────
-    ui.label(RichText::new("MINGGU INI").color(theme::muted()).size(10.0));
+    ui.label(RichText::new(t("MINGGU INI", "THIS WEEK")).color(theme::muted()).size(10.0));
     ui.add_space(4.0);
     week_card(ui, week, streak);
 
     ui.add_space(12.0);
-    ui.label(RichText::new("SEDANG AKTIF").color(theme::muted()).size(10.0));
+    ui.label(RichText::new(t("SEDANG AKTIF", "ACTIVE NOW")).color(theme::muted()).size(10.0));
     ui.add_space(6.0);
 
     let pomo_val = pomo
@@ -52,9 +53,19 @@ pub fn render(
     active_card(ui, icon::TIMER, "Pomodoro", pomo_val);
 
     let running = timer.countdowns.iter().filter(|c| c.is_running()).count();
-    active_card(ui, icon::HOURGLASS, "Countdown", (running > 0).then(|| format!("{running} berjalan")));
+    active_card(
+        ui,
+        icon::HOURGLASS,
+        "Countdown",
+        (running > 0).then(|| format!("{running} {}", t("berjalan", "running"))),
+    );
 
-    active_card(ui, icon::TIMER, "Stopwatch", timer.stopwatch.is_running().then(|| "berjalan".into()));
+    active_card(
+        ui,
+        icon::TIMER,
+        "Stopwatch",
+        timer.stopwatch.is_running().then(|| t("berjalan", "running").to_string()),
+    );
 
     active_card(ui, icon::BRIEFCASE, "Tracking", tracker.active_name().map(|n| n.to_string()));
 
@@ -63,7 +74,7 @@ pub fn render(
         .map(|rem| format!("{}  {}", sched.action.label(), fmt_hms(rem)));
     active_card(ui, icon::POWER, "Scheduler", sch_val);
 
-    active_card(ui, icon::BELL, "Alarm berikutnya", alarm.next_active());
+    active_card(ui, icon::BELL, t("Alarm berikutnya", "Next alarm"), alarm.next_active());
 
     let dl_val = timer
         .next_deadline()
@@ -77,9 +88,9 @@ pub fn render(
 fn fmt_minutes(m: u32) -> String {
     let (h, mm) = (m / 60, m % 60);
     if h > 0 {
-        format!("{h}j {mm}m")
+        format!("{h}{} {mm}{}", t("j", "h"), t("m", "m"))
     } else {
-        format!("{mm}m")
+        format!("{mm}{}", t("m", "m"))
     }
 }
 
@@ -96,7 +107,7 @@ fn week_card(ui: &mut Ui, week: &[(String, u32)], streak: u32) {
             ui.horizontal(|ui| {
                 ui.label(RichText::new(icon::FIRE).color(theme::ACCENT).size(15.0));
                 ui.label(
-                    RichText::new(format!("{streak} hari beruntun"))
+                    RichText::new(format!("{streak} {}", t("hari beruntun", "day streak")))
                         .color(theme::text())
                         .size(12.0),
                 );

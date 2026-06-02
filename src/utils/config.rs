@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::alarm::Alarm;
 use crate::core::deadline::Deadline;
 use crate::core::tracking::Project;
+use crate::i18n::Lang;
 use crate::ui::theme::ThemeMode;
 use crate::utils::sound::AlarmSound;
 
@@ -60,6 +61,7 @@ pub struct DayLog {
 #[serde(default)]
 pub struct Config {
     pub theme: ThemeMode,
+    pub lang: Lang,
     pub pomodoro: PomodoroCfg,
     pub alarms: Vec<Alarm>,
     pub break_alert: BreakAlertCfg,
@@ -80,6 +82,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             theme: ThemeMode::default(),
+            lang: Lang::default(),
             pomodoro: PomodoroCfg::default(),
             alarms: Vec::new(),
             break_alert: BreakAlertCfg::default(),

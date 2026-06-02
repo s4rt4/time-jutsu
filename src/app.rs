@@ -15,6 +15,7 @@ use crate::core::countdown::TimerState;
 use crate::core::pomodoro::{PhaseSwitch, Pomodoro};
 use crate::core::scheduler::Scheduler;
 use crate::core::tracking::Tracker;
+use crate::i18n::t;
 use crate::ui;
 use crate::ui::theme;
 use crate::utils;
@@ -69,9 +70,9 @@ impl Tab {
             Tab::Timer => "Timer",
             Tab::Tracking => "Time Tracking",
             Tab::Scheduler => "Scheduler",
-            Tab::Alarm => "Alarm & Reminder",
-            Tab::About => "About",
-            Tab::Settings => "Settings",
+            Tab::Alarm => t("Alarm & Pengingat", "Alarm & Reminder"),
+            Tab::About => t("Tentang", "About"),
+            Tab::Settings => t("Pengaturan", "Settings"),
         }
     }
 }
@@ -101,6 +102,7 @@ impl TimeJutsuApp {
         // Muat config dulu → set tema sebelum apply visuals.
         let config = Config::load();
         theme::set_theme(config.theme);
+        crate::i18n::set_lang(config.lang);
         theme::setup_fonts(&cc.egui_ctx);
         theme::apply(&cc.egui_ctx);
         egui_extras::install_image_loaders(&cc.egui_ctx);
@@ -182,13 +184,13 @@ impl TimeJutsuApp {
     fn week_stats(&self) -> (Vec<(String, u32)>, u32) {
         use chrono::{Datelike, Duration, Local, Weekday};
         let day_lbl = |w: Weekday| match w {
-            Weekday::Mon => "Sn",
-            Weekday::Tue => "Sl",
-            Weekday::Wed => "Rb",
-            Weekday::Thu => "Km",
-            Weekday::Fri => "Jm",
-            Weekday::Sat => "Sb",
-            Weekday::Sun => "Mg",
+            Weekday::Mon => t("Sn", "Mo"),
+            Weekday::Tue => t("Sl", "Tu"),
+            Weekday::Wed => t("Rb", "We"),
+            Weekday::Thu => t("Km", "Th"),
+            Weekday::Fri => t("Jm", "Fr"),
+            Weekday::Sat => t("Sb", "Sa"),
+            Weekday::Sun => t("Mg", "Su"),
         };
         let sessions_on = |key: &str| {
             self.config
@@ -238,13 +240,15 @@ impl TimeJutsuApp {
     /// Tick countdown timer & scheduler; picu notifikasi/aksi sistem.
     fn tick_timers(&mut self) {
         for label in self.timer.tick() {
-            utils::notifier::notify("Time-Jutsu", &format!("Timer selesai: {label}"));
+            let body = format!("{}: {label}", t("Timer selesai", "Timer done"));
+            utils::notifier::notify("Time-Jutsu", &body);
             if self.pomodoro.sound_enabled {
                 utils::sound::play(self.alarm.sound);
             }
         }
         if let Some(action) = self.scheduler.tick() {
-            utils::notifier::notify("Time-Jutsu", &format!("Menjalankan: {action}"));
+            let body = format!("{}: {action}", t("Menjalankan", "Running"));
+            utils::notifier::notify("Time-Jutsu", &body);
         }
     }
 
@@ -252,8 +256,13 @@ impl TimeJutsuApp {
     fn tick_pomodoro(&mut self) {
         if let Some(ev) = self.pomodoro.tick() {
             let body = match ev {
-                PhaseSwitch::ToBreak => "Sesi fokus selesai! Saatnya istirahat.",
-                PhaseSwitch::ToFocus => "Istirahat selesai. Kembali fokus!",
+                PhaseSwitch::ToBreak => t(
+                    "Sesi fokus selesai! Saatnya istirahat.",
+                    "Focus session done! Time for a break.",
+                ),
+                PhaseSwitch::ToFocus => {
+                    t("Istirahat selesai. Kembali fokus!", "Break over. Back to focus!")
+                }
             };
             utils::notifier::notify("Time-Jutsu", body);
             if self.pomodoro.sound_enabled {
@@ -294,7 +303,10 @@ impl TimeJutsuApp {
             utils::sound::play(sound);
         }
         if break_due {
-            utils::notifier::notify("Break Alert", "Saatnya istirahat sejenak 👀");
+            utils::notifier::notify(
+                "Break Alert",
+                t("Saatnya istirahat sejenak 👀", "Time for a short break 👀"),
+            );
             utils::sound::play(sound);
         }
     }
@@ -379,13 +391,19 @@ impl TimeJutsuApp {
                     );
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         ui.add_space(4.0);
-                        if title_button(ui, icon::X).on_hover_text("Tutup").clicked() {
+                        if title_button(ui, icon::X).on_hover_text(t("Tutup", "Close")).clicked() {
                             do_close = true;
                         }
-                        if title_button(ui, icon::MINUS).on_hover_text("Minimize").clicked() {
+                        if title_button(ui, icon::MINUS)
+                            .on_hover_text("Minimize")
+                            .clicked()
+                        {
                             do_minimize = true;
                         }
-                        if title_button(ui, icon::GEAR).on_hover_text("Pengaturan").clicked() {
+                        if title_button(ui, icon::GEAR)
+                            .on_hover_text(t("Pengaturan", "Settings"))
+                            .clicked()
+                        {
                             open_settings = true;
                         }
                     });
@@ -488,6 +506,7 @@ impl eframe::App for TimeJutsuApp {
                         ui,
                         &mut self.alarm.sound,
                         &mut self.config.theme,
+                        &mut self.config.lang,
                         &mut self.config.tray_on_close,
                         &mut self.config.tray_on_minimize,
                         &mut self.pomodoro.long_break_minutes,

@@ -7,6 +7,7 @@ use egui::{
 use egui_phosphor::regular as icon;
 
 use crate::core::pomodoro::{Phase, Pomodoro, PRESETS};
+use crate::i18n::t;
 use crate::ui::theme;
 
 const ARC_SIZE: f32 = 168.0;
@@ -29,9 +30,14 @@ pub fn render(ui: &mut Ui, pomo: &mut Pomodoro) {
                 .size(13.0),
         );
         ui.label(
-            RichText::new(format!("Sesi ke-{} hari ini", pomo.current_session()))
-                .color(theme::muted())
-                .size(11.0),
+            RichText::new(format!(
+                "{}{} {}",
+                t("Sesi ke-", "Session #"),
+                pomo.current_session(),
+                t("hari ini", "today")
+            ))
+            .color(theme::muted())
+            .size(11.0),
         );
 
         ui.add_space(10.0);
@@ -86,7 +92,7 @@ pub fn render(ui: &mut Ui, pomo: &mut Pomodoro) {
         ui.add_space(16.0);
         ui.checkbox(
             &mut pomo.sound_enabled,
-            RichText::new("Suara notifikasi").color(theme::text()),
+            RichText::new(t("Suara notifikasi", "Notification sound")).color(theme::text()),
         );
     });
 }

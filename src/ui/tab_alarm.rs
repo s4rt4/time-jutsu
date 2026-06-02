@@ -2,6 +2,7 @@ use egui::{Align, ComboBox, Layout, RichText, ScrollArea, Ui};
 use egui_phosphor::regular as icon;
 
 use crate::core::alarm::{AlarmState, Repeat};
+use crate::i18n::t;
 use crate::ui::theme;
 
 /// Render Tab Alarm. Kembalikan true bila ada perubahan (untuk disimpan).
@@ -19,7 +20,7 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
     // ── Tambah alarm ───────────────────────────────────────────────
     ui.add(
         egui::TextEdit::singleline(&mut alarm.input_label)
-            .hint_text("Label / pesan")
+            .hint_text(t("Label / pesan", "Label / message"))
             .desired_width(f32::INFINITY),
     );
     ui.add_space(6.0);
@@ -55,7 +56,7 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
     let mut remove = None;
     if alarm.alarms.is_empty() {
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("Belum ada alarm").color(theme::muted()).size(12.0));
+            ui.label(RichText::new(t("Belum ada alarm", "No alarms yet")).color(theme::muted()).size(12.0));
         });
     } else {
         ScrollArea::vertical()
@@ -131,12 +132,16 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
                 }
             });
             ui.horizontal(|ui| {
-                ui.label(RichText::new("Ingatkan istirahat tiap").color(theme::muted()).size(12.0));
+                ui.label(
+                    RichText::new(t("Ingatkan istirahat tiap", "Remind to rest every"))
+                        .color(theme::muted())
+                        .size(12.0),
+                );
                 if ui
                     .add(
                         egui::DragValue::new(&mut alarm.break_alert.interval_minutes)
                             .range(1..=240)
-                            .suffix(" menit"),
+                            .suffix(t(" menit", " min")),
                     )
                     .changed()
                 {

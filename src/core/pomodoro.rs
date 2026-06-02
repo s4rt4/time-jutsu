@@ -13,9 +13,9 @@ pub enum Phase {
 impl Phase {
     pub fn label(self) -> &'static str {
         match self {
-            Phase::Focus => "Fokus",
-            Phase::Break => "Istirahat",
-            Phase::LongBreak => "Istirahat Panjang",
+            Phase::Focus => crate::i18n::t("Fokus", "Focus"),
+            Phase::Break => crate::i18n::t("Istirahat", "Break"),
+            Phase::LongBreak => crate::i18n::t("Istirahat Panjang", "Long Break"),
         }
     }
 }

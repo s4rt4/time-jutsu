@@ -4,6 +4,7 @@
 
 mod app;
 mod core;
+mod i18n;
 mod ui;
 mod utils;
 

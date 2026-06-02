@@ -78,12 +78,14 @@ impl Scheduler {
             self.compute_target()
         };
         match target {
-            Some(t) => format!(
-                "Komputer akan {} pukul {}",
+            Some(target) => format!(
+                "{} {} {} {}",
+                crate::i18n::t("Komputer akan", "Computer will"),
                 self.action.label().to_lowercase(),
-                t.format("%H:%M")
+                crate::i18n::t("pukul", "at"),
+                target.format("%H:%M")
             ),
-            None => "Waktu tidak valid".to_string(),
+            None => crate::i18n::t("Waktu tidak valid", "Invalid time").to_string(),
         }
     }
 

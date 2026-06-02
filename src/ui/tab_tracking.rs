@@ -3,6 +3,7 @@ use egui_phosphor::regular as icon;
 
 use crate::core::fmt_hms;
 use crate::core::tracking::Tracker;
+use crate::i18n::t;
 use crate::ui::theme;
 use std::time::Duration;
 
@@ -11,19 +12,19 @@ pub fn render(ui: &mut Ui, tracker: &mut Tracker) -> bool {
     let mut changed = false;
 
     ui.label(RichText::new("Time Tracking").color(theme::text()).strong().size(15.0));
-    ui.label(RichText::new("Lacak waktu per proyek").color(theme::muted()).size(11.0));
+    ui.label(RichText::new(t("Lacak waktu per proyek", "Track time per project")).color(theme::muted()).size(11.0));
     ui.add_space(10.0);
 
     // ── Tambah proyek ──────────────────────────────────────────────
     let resp = ui.add(
         TextEdit::singleline(&mut tracker.input_name)
-            .hint_text("Nama proyek")
+            .hint_text(t("Nama proyek", "Project name"))
             .desired_width(f32::INFINITY),
     );
     let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
     ui.add_space(6.0);
     let add = egui::Button::new(
-        RichText::new(format!("{}  Tambah Proyek", icon::PLUS))
+        RichText::new(format!("{}  {}", icon::PLUS, t("Tambah Proyek", "Add Project")))
             .color(theme::on_accent())
             .strong(),
     )
@@ -39,7 +40,7 @@ pub fn render(ui: &mut Ui, tracker: &mut Tracker) -> bool {
     if tracker.projects.is_empty() {
         ui.add_space(16.0);
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("Belum ada proyek").color(theme::muted()).size(12.0));
+            ui.label(RichText::new(t("Belum ada proyek", "No projects yet")).color(theme::muted()).size(12.0));
         });
         return changed;
     }
@@ -76,7 +77,7 @@ pub fn render(ui: &mut Ui, tracker: &mut Tracker) -> bool {
                         ui.vertical(|ui| {
                             ui.label(RichText::new(&name).color(theme::text()).size(13.0));
                             ui.label(
-                                RichText::new(format!("Minggu ini: {week}"))
+                                RichText::new(format!("{}: {week}", t("Minggu ini", "This week")))
                                     .color(theme::muted())
                                     .size(10.0),
                             );

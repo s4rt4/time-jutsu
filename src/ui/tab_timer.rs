@@ -4,6 +4,7 @@ use egui_phosphor::regular as icon;
 use crate::core::countdown::{TimerMode, TimerState};
 use crate::core::fmt_hms;
 use crate::core::stopwatch::{fmt_sw, Stopwatch};
+use crate::i18n::t;
 use crate::ui::theme;
 
 /// Kembalikan true bila ada perubahan deadline (untuk disimpan).
@@ -39,14 +40,14 @@ fn render_deadline(ui: &mut Ui, timer: &mut TimerState) -> bool {
 
     ui.add(
         TextEdit::singleline(&mut timer.dl_label)
-            .hint_text("Label deadline")
+            .hint_text(t("Label deadline", "Deadline label"))
             .desired_width(f32::INFINITY),
     );
     ui.add_space(6.0);
     ui.horizontal(|ui| {
-        ui.label(RichText::new("Dalam").color(theme::muted()).size(12.0));
-        ui.add(egui::DragValue::new(&mut timer.dl_days).range(0..=365).suffix(" hari"));
-        ui.add(egui::DragValue::new(&mut timer.dl_hours).range(0..=23).suffix(" jam"));
+        ui.label(RichText::new(t("Dalam", "In")).color(theme::muted()).size(12.0));
+        ui.add(egui::DragValue::new(&mut timer.dl_days).range(0..=365).suffix(t(" hari", " days")));
+        ui.add(egui::DragValue::new(&mut timer.dl_hours).range(0..=23).suffix(t(" jam", " hrs")));
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
             let add = egui::Button::new(
                 RichText::new(format!("{}  Set", icon::PLUS)).color(theme::on_accent()).strong(),
@@ -65,7 +66,7 @@ fn render_deadline(ui: &mut Ui, timer: &mut TimerState) -> bool {
     if timer.deadlines.is_empty() {
         ui.add_space(16.0);
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("Belum ada deadline").color(theme::muted()).size(12.0));
+            ui.label(RichText::new(t("Belum ada deadline", "No deadlines yet")).color(theme::muted()).size(12.0));
         });
         return changed;
     }
@@ -113,7 +114,7 @@ fn render_deadline(ui: &mut Ui, timer: &mut TimerState) -> bool {
 fn render_countdown(ui: &mut Ui, timer: &mut TimerState) {
     ui.add(
         TextEdit::singleline(&mut timer.input_label)
-            .hint_text("Label (opsional)")
+            .hint_text(t("Label (opsional)", "Label (optional)"))
             .desired_width(f32::INFINITY),
     );
     ui.add_space(6.0);
@@ -123,7 +124,7 @@ fn render_countdown(ui: &mut Ui, timer: &mut TimerState) {
         ui.add(egui::DragValue::new(&mut timer.input_s).range(0..=59).suffix("s"));
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
             let add = egui::Button::new(
-                RichText::new(format!("{}  Tambah", icon::PLUS))
+                RichText::new(format!("{}  {}", icon::PLUS, t("Tambah", "Add")))
                     .color(theme::on_accent())
                     .strong(),
             )
@@ -139,7 +140,7 @@ fn render_countdown(ui: &mut Ui, timer: &mut TimerState) {
     if timer.countdowns.is_empty() {
         ui.add_space(16.0);
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("Belum ada countdown").color(theme::muted()).size(12.0));
+            ui.label(RichText::new(t("Belum ada countdown", "No countdowns yet")).color(theme::muted()).size(12.0));
         });
         return;
     }
@@ -275,7 +276,10 @@ fn export_laps(sw: &Stopwatch) {
                 .map(|p| p.config_dir().to_path_buf())
         });
     let Some(dir) = dir else {
-        crate::utils::notifier::notify("Export gagal", "Folder tujuan tidak ditemukan");
+        crate::utils::notifier::notify(
+            t("Export gagal", "Export failed"),
+            t("Folder tujuan tidak ditemukan", "Destination folder not found"),
+        );
         return;
     };
     let _ = std::fs::create_dir_all(&dir);
@@ -285,8 +289,11 @@ fn export_laps(sw: &Stopwatch) {
     );
     let path = dir.join(fname);
     match std::fs::write(&path, text) {
-        Ok(_) => crate::utils::notifier::notify("Export berhasil", &format!("{}", path.display())),
-        Err(e) => crate::utils::notifier::notify("Export gagal", &e.to_string()),
+        Ok(_) => crate::utils::notifier::notify(
+            t("Export berhasil", "Export successful"),
+            &format!("{}", path.display()),
+        ),
+        Err(e) => crate::utils::notifier::notify(t("Export gagal", "Export failed"), &e.to_string()),
     }
 }
 

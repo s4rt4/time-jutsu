@@ -20,9 +20,9 @@ pub enum Repeat {
 impl Repeat {
     pub fn label(self) -> &'static str {
         match self {
-            Repeat::Once => "Sekali",
-            Repeat::Daily => "Harian",
-            Repeat::Weekdays => "Hari kerja",
+            Repeat::Once => crate::i18n::t("Sekali", "Once"),
+            Repeat::Daily => crate::i18n::t("Harian", "Daily"),
+            Repeat::Weekdays => crate::i18n::t("Hari kerja", "Weekdays"),
         }
     }
     pub const ALL: [Repeat; 3] = [Repeat::Once, Repeat::Daily, Repeat::Weekdays];

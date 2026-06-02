@@ -22,18 +22,19 @@ impl Deadline {
 
     /// "3 hari 4 jam" / "5 jam 12 mnt" / "20 menit" / "Lewat".
     pub fn remaining_text(&self) -> String {
+        use crate::i18n::t;
         match self.remaining() {
             Some(d) => {
                 let (days, h, m) = (d.num_days(), d.num_hours() % 24, d.num_minutes() % 60);
                 if days > 0 {
-                    format!("{days} hari {h} jam")
+                    format!("{days} {} {h} {}", t("hari", "d"), t("jam", "h"))
                 } else if h > 0 {
-                    format!("{h} jam {m} mnt")
+                    format!("{h} {} {m} {}", t("jam", "h"), t("mnt", "min"))
                 } else {
-                    format!("{m} menit")
+                    format!("{m} {}", t("menit", "min"))
                 }
             }
-            None => "Lewat".to_string(),
+            None => t("Lewat", "Past").to_string(),
         }
     }
 

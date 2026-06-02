@@ -21,7 +21,7 @@ pub fn sound_picker(ui: &mut Ui, sound: &mut AlarmSound) -> bool {
     let mut changed = false;
     ui.horizontal(|ui| {
         ui.label(
-            RichText::new(format!("{}  Nada", icon::MUSIC_NOTES))
+            RichText::new(format!("{}  {}", icon::MUSIC_NOTES, crate::i18n::t("Nada", "Sound")))
                 .color(theme::muted())
                 .size(12.0),
         );
@@ -38,7 +38,7 @@ pub fn sound_picker(ui: &mut Ui, sound: &mut AlarmSound) -> bool {
             .fill(theme::ACCENT)
             .corner_radius(6.0)
             .min_size(egui::vec2(28.0, 22.0));
-        if ui.add(play).on_hover_text("Preview nada").clicked() {
+        if ui.add(play).on_hover_text(crate::i18n::t("Preview nada", "Preview sound")).clicked() {
             sound::play(*sound);
         }
     });
