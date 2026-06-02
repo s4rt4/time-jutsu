@@ -22,7 +22,7 @@ pub fn render(
     week: &[(String, u32)],
     streak: u32,
 ) {
-    ui.label(RichText::new("Dashboard").color(theme::text()).strong().size(15.0));
+    ui.label(RichText::new(t("Dasbor", "Dashboard")).color(theme::text()).strong().size(15.0));
     ui.add_space(12.0);
 
     egui::ScrollArea::vertical()
@@ -56,7 +56,7 @@ pub fn render(
     active_card(
         ui,
         icon::HOURGLASS,
-        "Countdown",
+        t("Hitung Mundur", "Countdown"),
         (running > 0).then(|| format!("{running} {}", t("berjalan", "running"))),
     );
 
@@ -67,19 +67,24 @@ pub fn render(
         timer.stopwatch.is_running().then(|| t("berjalan", "running").to_string()),
     );
 
-    active_card(ui, icon::BRIEFCASE, "Tracking", tracker.active_name().map(|n| n.to_string()));
+    active_card(
+        ui,
+        icon::BRIEFCASE,
+        t("Pelacak", "Tracking"),
+        tracker.active_name().map(|n| n.to_string()),
+    );
 
     let sch_val = sched
         .remaining()
         .map(|rem| format!("{}  {}", sched.action.label(), fmt_hms(rem)));
-    active_card(ui, icon::POWER, "Scheduler", sch_val);
+    active_card(ui, icon::POWER, t("Penjadwal", "Scheduler"), sch_val);
 
     active_card(ui, icon::BELL, t("Alarm berikutnya", "Next alarm"), alarm.next_active());
 
     let dl_val = timer
         .next_deadline()
         .map(|d| format!("{}  {}", d.label, d.remaining_text()));
-    active_card(ui, icon::FLAG, "Deadline", dl_val);
+    active_card(ui, icon::FLAG, t("Tenggat", "Deadline"), dl_val);
 
             ui.add_space(8.0); // ruang bawah
         });

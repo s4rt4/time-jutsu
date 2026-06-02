@@ -146,10 +146,6 @@ impl TimerState {
         done
     }
 
-    pub fn any_running(&self) -> bool {
-        self.countdowns.iter().any(|c| c.is_running()) || self.stopwatch.is_running()
-    }
-
     /// Tambah deadline relatif: sekarang + dl_days hari + dl_hours jam.
     pub fn add_deadline(&mut self) {
         if self.dl_days <= 0 && self.dl_hours <= 0 {

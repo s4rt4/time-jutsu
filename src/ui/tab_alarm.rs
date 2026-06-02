@@ -11,7 +11,7 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
 
     ui.label(RichText::new("Alarm").color(theme::text()).strong().size(15.0));
     ui.label(
-        RichText::new("Alarm, Reminder & Break Alert")
+        RichText::new(t("Alarm, Pengingat & Istirahat", "Alarm, Reminder & Break Alert"))
             .color(theme::muted())
             .size(11.0),
     );
@@ -37,7 +37,7 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
             });
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
             let add = egui::Button::new(
-                RichText::new(format!("{}  Set", icon::PLUS))
+                RichText::new(format!("{}  {}", icon::PLUS, t("Tambah", "Add")))
                     .color(theme::on_accent())
                     .strong(),
             )
@@ -124,7 +124,7 @@ pub fn render(ui: &mut Ui, alarm: &mut AlarmState) -> bool {
                 if ui
                     .checkbox(
                         &mut alarm.break_alert.enabled,
-                        RichText::new("Break Alert").color(theme::text()).strong(),
+                        RichText::new(t("Pengingat Istirahat", "Break Alert")).color(theme::text()).strong(),
                     )
                     .changed()
                 {

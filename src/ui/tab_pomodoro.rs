@@ -46,9 +46,9 @@ pub fn render(ui: &mut Ui, pomo: &mut Pomodoro) {
 
         // ── Start/Pause (di tengah) ────────────────────────────────
         let (label, glyph) = if pomo.is_running() {
-            ("Pause", icon::PAUSE)
+            (t("Jeda", "Pause"), icon::PAUSE)
         } else {
-            ("Start", icon::PLAY)
+            (t("Mulai", "Start"), icon::PLAY)
         };
         if start_button(ui, &format!("{glyph}  {label}"), arc_color).clicked() {
             pomo.toggle();
@@ -77,7 +77,7 @@ pub fn render(ui: &mut Ui, pomo: &mut Pomodoro) {
         ui.add_space(8.0);
         ui.add_enabled_ui(!pomo.is_running(), |ui| {
             centered_row(ui, 192.0, 26.0, |ui| {
-                ui.label(RichText::new("Custom").color(theme::muted()).size(12.0));
+                ui.label(RichText::new(t("Kustom", "Custom")).color(theme::muted()).size(12.0));
                 let mut w = pomo.work_minutes;
                 let mut b = pomo.break_minutes;
                 let r1 = ui.add(egui::DragValue::new(&mut w).range(1..=180).suffix("m"));

@@ -65,11 +65,11 @@ impl Tab {
 
     pub fn title(self) -> &'static str {
         match self {
-            Tab::Dashboard => "Dashboard",
+            Tab::Dashboard => t("Dasbor", "Dashboard"),
             Tab::Pomodoro => "Pomodoro",
             Tab::Timer => "Timer",
-            Tab::Tracking => "Time Tracking",
-            Tab::Scheduler => "Scheduler",
+            Tab::Tracking => t("Pelacak Waktu", "Time Tracking"),
+            Tab::Scheduler => t("Penjadwal", "Scheduler"),
             Tab::Alarm => t("Alarm & Pengingat", "Alarm & Reminder"),
             Tab::About => t("Tentang", "About"),
             Tab::Settings => t("Pengaturan", "Settings"),

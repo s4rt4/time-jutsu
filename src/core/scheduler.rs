@@ -79,9 +79,8 @@ impl Scheduler {
         };
         match target {
             Some(target) => format!(
-                "{} {} {} {}",
-                crate::i18n::t("Komputer akan", "Computer will"),
-                self.action.label().to_lowercase(),
+                "{} {} {}",
+                self.action.label(),
                 crate::i18n::t("pukul", "at"),
                 target.format("%H:%M")
             ),

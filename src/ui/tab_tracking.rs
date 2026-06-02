@@ -11,7 +11,7 @@ use std::time::Duration;
 pub fn render(ui: &mut Ui, tracker: &mut Tracker) -> bool {
     let mut changed = false;
 
-    ui.label(RichText::new("Time Tracking").color(theme::text()).strong().size(15.0));
+    ui.label(RichText::new(t("Pelacak Waktu", "Time Tracking")).color(theme::text()).strong().size(15.0));
     ui.label(RichText::new(t("Lacak waktu per proyek", "Track time per project")).color(theme::muted()).size(11.0));
     ui.add_space(10.0);
 

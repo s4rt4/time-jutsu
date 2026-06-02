@@ -14,9 +14,9 @@ pub fn render(ui: &mut Ui, timer: &mut TimerState) -> bool {
 
     // ── Mode: Countdown / Stopwatch / Deadline ─────────────────────
     ui.horizontal(|ui| {
-        mode_button(ui, timer, TimerMode::Countdown, "Countdown");
+        mode_button(ui, timer, TimerMode::Countdown, t("Hitung Mundur", "Countdown"));
         mode_button(ui, timer, TimerMode::Stopwatch, "Stopwatch");
-        mode_button(ui, timer, TimerMode::Deadline, "Deadline");
+        mode_button(ui, timer, TimerMode::Deadline, t("Tenggat", "Deadline"));
     });
     ui.add_space(12.0);
 
@@ -213,14 +213,14 @@ fn render_stopwatch(ui: &mut Ui, sw: &mut Stopwatch) {
         ui.horizontal(|ui| {
             ui.add_space((ui.available_width() - 230.0).max(0.0) / 2.0);
             let (lbl, gl) = if sw.is_running() {
-                ("Pause", icon::PAUSE)
+                (t("Jeda", "Pause"), icon::PAUSE)
             } else {
-                ("Start", icon::PLAY)
+                (t("Mulai", "Start"), icon::PLAY)
             };
             if accent_button(ui, &format!("{gl}  {lbl}")).clicked() {
                 sw.toggle();
             }
-            if ghost_button(ui, &format!("{}  Lap", icon::FLAG)).clicked() {
+            if ghost_button(ui, &format!("{}  {}", icon::FLAG, t("Putaran", "Lap"))).clicked() {
                 sw.lap();
             }
             if ghost_button(ui, &format!("{}  Reset", icon::ARROW_COUNTER_CLOCKWISE)).clicked() {
@@ -231,7 +231,7 @@ fn render_stopwatch(ui: &mut Ui, sw: &mut Stopwatch) {
         ui.add_space(12.0);
 
         if !sw.laps.is_empty() {
-            if ghost_button(ui, &format!("{}  Export .txt", icon::DOWNLOAD_SIMPLE)).clicked() {
+            if ghost_button(ui, &format!("{}  {}", icon::DOWNLOAD_SIMPLE, t("Ekspor .txt", "Export .txt"))).clicked() {
                 export_laps(sw);
             }
             ui.add_space(8.0);

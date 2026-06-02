@@ -67,9 +67,6 @@ impl Tracker {
     pub fn is_active(&self, i: usize) -> bool {
         self.active == Some(i)
     }
-    pub fn any_active(&self) -> bool {
-        self.active.is_some()
-    }
 
     /// Commit detik sesi berjalan ke log hari ini, lalu reset titik mulai.
     pub fn flush(&mut self) {

@@ -25,10 +25,10 @@ impl SystemAction {
 
     pub fn label(self) -> &'static str {
         match self {
-            SystemAction::Shutdown => "Shutdown",
-            SystemAction::Restart => "Restart",
-            SystemAction::Sleep => "Sleep",
-            SystemAction::Hibernate => "Hibernate",
+            SystemAction::Shutdown => crate::i18n::t("Matikan", "Shutdown"),
+            SystemAction::Restart => crate::i18n::t("Mulai Ulang", "Restart"),
+            SystemAction::Sleep => crate::i18n::t("Tidur", "Sleep"),
+            SystemAction::Hibernate => crate::i18n::t("Hibernasi", "Hibernate"),
         }
     }
 }

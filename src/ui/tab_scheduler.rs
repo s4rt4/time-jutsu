@@ -9,15 +9,18 @@ use crate::utils::platform::SystemAction;
 
 pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
     ui.label(
-        RichText::new("Scheduler")
+        RichText::new(t("Penjadwal", "Scheduler"))
             .color(theme::text())
             .strong()
             .size(15.0),
     );
     ui.label(
-        RichText::new("Auto shutdown / sleep / restart")
-            .color(theme::muted())
-            .size(11.0),
+        RichText::new(t(
+            "Matikan / tidur / restart otomatis",
+            "Auto shutdown / sleep / restart",
+        ))
+        .color(theme::muted())
+        .size(11.0),
     );
     ui.add_space(12.0);
 
@@ -103,7 +106,7 @@ pub fn render(ui: &mut Ui, sched: &mut Scheduler) {
             }
         } else {
             let cancel = egui::Button::new(
-                RichText::new(format!("{}  Cancel All", icon::X_CIRCLE))
+                RichText::new(format!("{}  {}", icon::X_CIRCLE, t("Batalkan Semua", "Cancel All")))
                     .color(theme::text())
                     .strong(),
             )
