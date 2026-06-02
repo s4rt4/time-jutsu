@@ -521,6 +521,12 @@ impl eframe::App for TimeJutsuApp {
             theme::set_theme(self.config.theme);
             theme::apply(ctx);
         }
+        if cfg_changed {
+            // bahasa mungkin berganti → perbarui label menu tray (menu OS statis)
+            if let Some(tray) = &self.tray {
+                tray.update_lang();
+            }
+        }
         if cfg_changed || theme_changed {
             self.save_config();
         }

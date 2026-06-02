@@ -29,16 +29,25 @@ fn push(cmd: TrayCommand) {
 
 pub struct TrayState {
     _tray: TrayIcon,
+    // simpan item agar teksnya bisa diperbarui saat bahasa berganti
+    i_show: MenuItem,
+    i_track: MenuItem,
+    i_dash: MenuItem,
+    i_quit: MenuItem,
+}
+
+fn t(id: &'static str, en: &'static str) -> &'static str {
+    crate::i18n::t(id, en)
 }
 
 impl TrayState {
     pub fn new(ctx: &egui::Context) -> Option<Self> {
         let menu = Menu::new();
-        let i_show = MenuItem::new("Tampilkan", true, None);
+        let i_show = MenuItem::new(t("Tampilkan", "Show"), true, None);
         let i_pomo = MenuItem::new("Pomodoro", true, None);
-        let i_track = MenuItem::new("Time Tracking", true, None);
-        let i_dash = MenuItem::new("Dashboard", true, None);
-        let i_quit = MenuItem::new("Keluar", true, None);
+        let i_track = MenuItem::new(t("Pelacak Waktu", "Time Tracking"), true, None);
+        let i_dash = MenuItem::new(t("Dasbor", "Dashboard"), true, None);
+        let i_quit = MenuItem::new(t("Keluar", "Quit"), true, None);
 
         let _ = menu.append(&i_show);
         let _ = menu.append(&PredefinedMenuItem::separator());
@@ -100,7 +109,21 @@ impl TrayState {
             }
         }));
 
-        Some(Self { _tray: tray })
+        Some(Self {
+            _tray: tray,
+            i_show,
+            i_track,
+            i_dash,
+            i_quit,
+        })
+    }
+
+    /// Perbarui label menu sesuai bahasa aktif (menu OS dibuat sekali).
+    pub fn update_lang(&self) {
+        self.i_show.set_text(t("Tampilkan", "Show"));
+        self.i_track.set_text(t("Pelacak Waktu", "Time Tracking"));
+        self.i_dash.set_text(t("Dasbor", "Dashboard"));
+        self.i_quit.set_text(t("Keluar", "Quit"));
     }
 
     /// Ambil semua command tertunda (FIFO).

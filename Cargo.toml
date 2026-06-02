@@ -1,6 +1,6 @@
 [package]
 name = "time-jutsu"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "Master your time. Strike with precision."
 
