@@ -527,13 +527,16 @@ impl eframe::App for TimeJutsuApp {
 
         // Repaint: cepat saat timer jalan (arc mulus), lambat saat idle
         // (cukup untuk polling tray walau window di-hide). Wall-clock based.
+        // Cadence repaint hemat CPU: hanya cepat saat benar-benar perlu.
         let interval = if self.timer.stopwatch.is_running() {
-            33 // stopwatch: ~30fps utk centisecond yang mulus
-        } else if self.pomodoro.is_running() || self.timer.any_running() || self.tracker.any_active()
-        {
-            100
+            33 // centisecond butuh ~30fps
+        } else if self.pomodoro.is_running() {
+            // selaraskan dgn pergantian detik → ~1fps, hemat CPU & detik tetap akurat
+            (self.pomodoro.remaining().subsec_millis() as u64).clamp(30, 1000)
+        } else if self.timer.countdowns.iter().any(|c| c.is_running()) {
+            500
         } else {
-            250
+            1000 // idle: cukup utk cek alarm/scheduler/tracking (heartbeat juga 1s)
         };
         ctx.request_repaint_after(Duration::from_millis(interval));
     }
