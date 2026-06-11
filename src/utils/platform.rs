@@ -2,7 +2,8 @@
 //!
 //! ATURAN: semua percabangan OS hidup di file ini. UI/core hanya memanggil
 //! fungsi publik di sini, tidak boleh tahu OS apa yang berjalan.
-//! Windows = prioritas sekarang; cabang Linux sudah disiapkan tapi belum diuji.
+//! Windows & Linux didukung. Linux memakai D-Bus (deteksi host tray + idle)
+//! dan systemctl (scheduler); diuji di GNOME/Wayland, portabel ke distro lain.
 
 use std::process::Command;
 
@@ -140,10 +141,79 @@ pub fn idle_seconds() -> u64 {
     }
 }
 
-/// Linux: belum diimplementasi (butuh X11/Wayland idle query). Anggap selalu aktif.
+/// Linux: idle via D-Bus. Coba GNOME (Mutter IdleMonitor) lalu freedesktop
+/// ScreenSaver (KDE/lainnya). Bila tak satupun tersedia → 0 (anggap aktif).
 #[cfg(target_os = "linux")]
 pub fn idle_seconds() -> u64 {
+    use zbus::blocking::Connection;
+    let Ok(conn) = Connection::session() else {
+        return 0;
+    };
+
+    // GNOME: org.gnome.Mutter.IdleMonitor.GetIdletime → u64 milidetik.
+    let reply = conn.call_method(
+        Some("org.gnome.Mutter.IdleMonitor"),
+        "/org/gnome/Mutter/IdleMonitor/Core",
+        Some("org.gnome.Mutter.IdleMonitor"),
+        "GetIdletime",
+        &(),
+    );
+    if let Ok(msg) = reply {
+        if let Ok(ms) = msg.body().deserialize::<u64>() {
+            return ms / 1000;
+        }
+    }
+
+    // Fallback portabel: org.freedesktop.ScreenSaver.GetSessionIdleTime → u32 detik.
+    let reply = conn.call_method(
+        Some("org.freedesktop.ScreenSaver"),
+        "/org/freedesktop/ScreenSaver",
+        Some("org.freedesktop.ScreenSaver"),
+        "GetSessionIdleTime",
+        &(),
+    );
+    if let Ok(msg) = reply {
+        if let Ok(secs) = msg.body().deserialize::<u32>() {
+            return secs as u64;
+        }
+    }
+
     0
+}
+
+/// Apakah ada host system-tray sungguhan (StatusNotifierHost) di session bus?
+/// GNOME default TANPA ekstensi AppIndicator = tidak ada → app tetap di dock.
+/// Tanpa cek ini, ikon tray ter-register di D-Bus tapi tak terlihat, sehingga
+/// "hide to tray" menyembunyikan window tanpa cara memunculkannya kembali.
+#[cfg(target_os = "linux")]
+pub fn tray_host_available() -> bool {
+    use zbus::blocking::Connection;
+    let Ok(conn) = Connection::session() else {
+        return false;
+    };
+    let reply = conn.call_method(
+        Some("org.kde.StatusNotifierWatcher"),
+        "/StatusNotifierWatcher",
+        Some("org.freedesktop.DBus.Properties"),
+        "Get",
+        &(
+            "org.kde.StatusNotifierWatcher",
+            "IsStatusNotifierHostRegistered",
+        ),
+    );
+    let Ok(msg) = reply else {
+        return false; // watcher tak ada di bus → tak ada tray
+    };
+    match msg.body().deserialize::<zbus::zvariant::Value>() {
+        Ok(v) => bool::try_from(v).unwrap_or(false),
+        Err(_) => false,
+    }
+}
+
+/// Windows selalu punya tray (notification area).
+#[cfg(target_os = "windows")]
+pub fn tray_host_available() -> bool {
+    true
 }
 
 /// Tampilkan & fokuskan window app via Win32 langsung (by title). Dipakai tray
@@ -165,5 +235,33 @@ pub fn show_window(title: &str) {
     }
 }
 
+/// Linux: un-hide & fokus ditangani lintas-platform di `app::handle_tray` via
+/// `ViewportCommand::Visible(true)` + `Focus` (egui membangunkan eframe lewat
+/// `request_repaint` dari handler tray, walau window sedang hidden). Wayland
+/// melarang aplikasi memaksa raise window lain, jadi tak ada jalur Win32 di sini.
 #[cfg(target_os = "linux")]
 pub fn show_window(_title: &str) {}
+
+#[cfg(all(test, target_os = "linux"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn linux_actions_map_to_systemctl() {
+        let cases = [
+            (SystemAction::Shutdown, "poweroff"),
+            (SystemAction::Restart, "reboot"),
+            (SystemAction::Sleep, "suspend"),
+            (SystemAction::Hibernate, "hibernate"),
+        ];
+        for (action, want) in cases {
+            let cmd = build_action_command(action, 0);
+            assert_eq!(cmd.get_program(), "systemctl");
+            let args: Vec<String> = cmd
+                .get_args()
+                .map(|a| a.to_string_lossy().into_owned())
+                .collect();
+            assert_eq!(args, vec![want.to_string()], "aksi {action:?}");
+        }
+    }
+}

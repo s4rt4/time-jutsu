@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Time-Jutsu
+GenericName=Time Manager
+Comment=Master your time. Strike with precision.
+Exec=time-jutsu
+Icon=time-jutsu
+Terminal=false
+Categories=Office;ProjectManagement;
+Keywords=pomodoro;timer;tracking;focus;alarm;
+StartupNotify=true
+StartupWMClass=time-jutsu

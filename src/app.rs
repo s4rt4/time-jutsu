@@ -511,6 +511,7 @@ impl eframe::App for TimeJutsuApp {
                         &mut self.config.tray_on_minimize,
                         &mut self.pomodoro.long_break_minutes,
                         &mut self.config.idle_autopause,
+                        self.tray.is_some(),
                     );
                     cfg_changed = res.changed;
                     theme_changed = res.theme_changed;

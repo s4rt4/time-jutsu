@@ -18,7 +18,7 @@ Desktop productivity app untuk manajemen waktu — fokus untuk developer & desai
 
 ## Stack
 
-Rust + [egui](https://github.com/emilk/egui) (`eframe`) · `rodio` (audio) · `chrono` · `serde`. Sudut window membulat via DWM (Windows 11).
+Rust + [egui](https://github.com/emilk/egui) (`eframe`) · `rodio` (audio) · `chrono` · `serde`. Sudut window membulat via DWM (Windows 11). Di Linux: D-Bus untuk deteksi host tray & idle monitor.
 
 ## Build
 
@@ -27,9 +27,28 @@ cargo run            # debug
 cargo build --release
 ```
 
+### Dependensi sistem (Linux)
+
+Butuh header dev berikut saat build (audio + system tray):
+
+```sh
+# Fedora
+sudo dnf install -y alsa-lib-devel libxdo-devel libappindicator-gtk3-devel gtk3-devel
+
+# Debian/Ubuntu
+sudo apt install -y libasound2-dev libxdo-dev libappindicator3-dev libgtk-3-dev
+
+# Arch
+sudo pacman -S --needed alsa-lib xdotool libappindicator-gtk3 gtk3
+```
+
+Saat runtime hanya butuh shared library-nya (libasound, libgtk-3, libappindicator/ayatana, libxdo, libdbus) — umum tersedia di desktop Linux.
+
 ## Platform
 
-Windows (utama). Kode OS-specific diisolasi di `src/utils/platform.rs` agar mudah diperluas ke Linux.
+Windows & Linux. Kode OS-specific diisolasi di `src/utils/platform.rs`.
+
+**Catatan Linux (system tray):** GNOME modern secara default **tidak punya system tray**. App mendeteksi ini via D-Bus (`StatusNotifierWatcher`) — bila tak ada host tray, ikon tray tidak dibuat dan app tetap tampil di **dock/taskbar** (minimize → dock, close → keluar). Untuk mengaktifkan tray di GNOME, pasang ekstensi *AppIndicator and KStatusNotifierItem Support*. KDE/XFCE/Cinnamon punya tray secara default. Idle/auto-pause memakai Mutter (GNOME) dengan fallback freedesktop ScreenSaver; single-instance memakai flock.
 
 ---
 

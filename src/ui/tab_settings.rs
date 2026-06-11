@@ -21,6 +21,7 @@ pub fn render(
     tray_on_minimize: &mut bool,
     long_break_minutes: &mut u32,
     idle_autopause: &mut bool,
+    tray_available: bool,
 ) -> SettingsResult {
     let mut changed = false;
     let mut theme_changed = false;
@@ -118,42 +119,54 @@ pub fn render(
     // ── Perilaku ───────────────────────────────────────────────────
     section(ui, t("PERILAKU", "BEHAVIOR"));
     card(ui, |ui| {
-        if ui
-            .checkbox(
-                tray_on_close,
-                RichText::new(t(
-                    "Sembunyikan ke system tray saat ditutup",
-                    "Hide to system tray on close",
-                ))
-                .color(theme::text()),
-            )
-            .changed()
-        {
+        // Opsi tray hanya bermakna bila ada host tray. Tanpa tray (mis. GNOME
+        // default) toggle diredupkan agar jelas tak berefek — app tetap di dock.
+        let mut local_changed = false;
+        ui.add_enabled_ui(tray_available, |ui| {
+            if ui
+                .checkbox(
+                    tray_on_close,
+                    RichText::new(t(
+                        "Sembunyikan ke system tray saat ditutup",
+                        "Hide to system tray on close",
+                    ))
+                    .color(theme::text()),
+                )
+                .changed()
+            {
+                local_changed = true;
+            }
+            ui.add_space(4.0);
+            if ui
+                .checkbox(
+                    tray_on_minimize,
+                    RichText::new(t(
+                        "Sembunyikan ke system tray saat di-minimize",
+                        "Hide to system tray on minimize",
+                    ))
+                    .color(theme::text()),
+                )
+                .changed()
+            {
+                local_changed = true;
+            }
+        });
+        if local_changed {
             changed = true;
         }
         ui.add_space(4.0);
-        if ui
-            .checkbox(
-                tray_on_minimize,
-                RichText::new(t(
-                    "Sembunyikan ke system tray saat di-minimize",
-                    "Hide to system tray on minimize",
-                ))
-                .color(theme::text()),
-            )
-            .changed()
-        {
-            changed = true;
-        }
-        ui.add_space(4.0);
-        ui.label(
-            RichText::new(t(
+        let hint = if tray_available {
+            t(
                 "Jika dimatikan: tombol tutup keluar dari app, minimize ke taskbar.",
                 "If off: close button exits the app, minimize goes to taskbar.",
-            ))
-            .color(theme::muted())
-            .size(11.0),
-        );
+            )
+        } else {
+            t(
+                "System tray tak tersedia — app tampil di dock. Tutup = keluar, minimize = ke dock.",
+                "No system tray available — app stays in the dock. Close = quit, minimize = to dock.",
+            )
+        };
+        ui.label(RichText::new(hint).color(theme::muted()).size(11.0));
     });
 
     SettingsResult {

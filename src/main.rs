@@ -50,7 +50,30 @@ fn should_exit_duplicate() -> bool {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+/// Linux: single-instance via flock pada lock-file di `$XDG_RUNTIME_DIR`
+/// (fallback `/tmp`). Lock dipegang sampai proses keluar (FD sengaja di-leak).
+/// Portabel lintas-distro; tak butuh server display.
+#[cfg(target_os = "linux")]
+fn should_exit_duplicate() -> bool {
+    use std::fs::OpenOptions;
+    use std::os::unix::io::AsRawFd;
+
+    let dir = std::env::var("XDG_RUNTIME_DIR").unwrap_or_else(|_| "/tmp".into());
+    let path = format!("{dir}/time-jutsu.lock");
+    let Ok(file) = OpenOptions::new().create(true).write(true).open(&path) else {
+        return false; // tak bisa lock → biarkan jalan
+    };
+    // flock non-blocking eksklusif: gagal = instance lain sudah memegang lock.
+    let rc = unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) };
+    if rc != 0 {
+        return true;
+    }
+    // Tahan lock seumur proses (tak ada Drop yang menutup FD).
+    std::mem::forget(file);
+    false
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
 fn should_exit_duplicate() -> bool {
     false
 }
@@ -67,6 +90,10 @@ fn main() -> eframe::Result<()> {
         .with_resizable(false)
         .with_decorations(false) // frameless — titlebar digambar sendiri
         .with_icon(Arc::new(load_window_icon()))
+        // app_id = Wayland app_id / X11 WM_CLASS. Harus cocok dgn StartupWMClass
+        // di time-jutsu.desktop agar GNOME memakai logo kita di dock (Wayland
+        // mengambil ikon dock dari .desktop, bukan dari with_icon).
+        .with_app_id("time-jutsu")
         .with_title("Time-Jutsu");
 
     let options = eframe::NativeOptions {

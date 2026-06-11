@@ -42,6 +42,12 @@ fn t(id: &'static str, en: &'static str) -> &'static str {
 
 impl TrayState {
     pub fn new(ctx: &egui::Context) -> Option<Self> {
+        // Tanpa host tray sungguhan (mis. GNOME default), JANGAN buat tray:
+        // app akan tetap tampil di dock & perilaku hide-to-tray nonaktif.
+        if !crate::utils::platform::tray_host_available() {
+            return None;
+        }
+
         let menu = Menu::new();
         let i_show = MenuItem::new(t("Tampilkan", "Show"), true, None);
         let i_pomo = MenuItem::new("Pomodoro", true, None);
