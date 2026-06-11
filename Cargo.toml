@@ -3,6 +3,8 @@ name = "time-jutsu"
 version = "0.1.5"
 edition = "2021"
 description = "Master your time. Strike with precision."
+license = "MIT"
+repository = "https://github.com/s4rt4/time-jutsu"
 
 [dependencies]
 eframe = "0.31"
@@ -46,3 +48,24 @@ lto = true
 codegen-units = 1
 strip = true
 panic = "abort"
+
+# Paket .rpm dibangun via `cargo generate-rpm` (baca binary di target/release).
+# Dependensi runtime (libasound, gtk3, appindicator, xdo, dbus) dideteksi
+# otomatis dari .so yang di-link → dnf resolve ke paket distro yang sesuai.
+[package.metadata.generate-rpm]
+summary = "Desktop productivity app — Pomodoro, timer, time tracking, scheduler."
+assets = [
+    { source = "target/release/time-jutsu", dest = "/usr/bin/time-jutsu", mode = "755" },
+    { source = "installer/linux/time-jutsu.desktop", dest = "/usr/share/applications/time-jutsu.desktop", mode = "644" },
+    { source = "assets/logo-256.png", dest = "/usr/share/icons/hicolor/256x256/apps/time-jutsu.png", mode = "644" },
+    { source = "assets/logo-64.png", dest = "/usr/share/icons/hicolor/64x64/apps/time-jutsu.png", mode = "644" },
+    { source = "assets/logo-32.png", dest = "/usr/share/icons/hicolor/32x32/apps/time-jutsu.png", mode = "644" },
+    { source = "LICENSE", dest = "/usr/share/licenses/time-jutsu/LICENSE", mode = "644", doc = true },
+    { source = "README.md", dest = "/usr/share/doc/time-jutsu/README.md", mode = "644", doc = true },
+]
+
+# libappindicator hanya terpakai saat ada host system-tray (di-load opsional,
+# bukan NEEDED). Weak-dep: ikut terpasang di distro yang menyediakannya, tak
+# memblokir yang tidak (app tetap jalan & tampil di dock).
+[package.metadata.generate-rpm.recommends]
+"libappindicator3.so.1()(64bit)" = "*"
