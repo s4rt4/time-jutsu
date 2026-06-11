@@ -372,7 +372,11 @@ impl TimeJutsuApp {
             .show(ctx, |ui| {
                 let drag =
                     ui.interact(ui.max_rect(), Id::new("titlebar_drag"), Sense::click_and_drag());
-                if drag.is_pointer_button_down_on() {
+                // Picu StartDrag hanya saat drag BENAR-BENAR dimulai (ada gerakan),
+                // bukan saat tombol baru ditekan. Di Wayland, StartDrag saat-tekan
+                // langsung memulai interactive-move grab di compositor → menelan
+                // klik tombol titlebar & memunculkan outline pindah yang berkedip.
+                if drag.drag_started_by(egui::PointerButton::Primary) {
                     ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
                 }
 
